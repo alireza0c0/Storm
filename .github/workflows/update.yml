@@ -1,0 +1,30 @@
+name: Update Subscription
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # اجرا هر 6 ساعت
+  workflow_dispatch:       # اجرای دستی از UI
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download latest subscription
+      run: |
+        curl -s https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt -o Config/all.txt
+
+    - name: Commit and push if changed
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        if git diff --quiet; then
+          echo "No changes to commit."
+        else
+          git add Config/all.txt
+          git commit -m "Auto-update all.txt from external source"
+          git push
+        fi
