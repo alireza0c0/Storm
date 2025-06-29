@@ -2,8 +2,8 @@ name: Update Subscription
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # هر 6 ساعت یکبار اجرا می‌شود
-  workflow_dispatch:       # امکان اجرا دستی
+    - cron: '0 */6 * * *'  # هر 6 ساعت یکبار اجرا
+  workflow_dispatch:       # امکان اجرای دستی
 
 jobs:
   update:
@@ -16,16 +16,16 @@ jobs:
       - name: Install curl
         run: sudo apt-get update && sudo apt-get install -y curl
 
-      - name: Download and verify file
+      - name: Download file
         run: |
           echo "📥 Downloading file..."
           curl -s -w "\nHTTP status: %{http_code}\n" \
-            https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt \
+            https://www.w3.org/TR/PNG/iso_8859-1.txt \
             -o temp.txt
 
           echo "📦 Content of temp.txt:"
           cat temp.txt || echo "(Nothing downloaded)"
-          
+
           if [ ! -s temp.txt ]; then
             echo "❌ File is empty, aborting."
             exit 1
