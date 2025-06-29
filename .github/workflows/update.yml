@@ -1,9 +1,9 @@
 name: Update Subscription
 
 on:
-  workflow_dispatch:       # فعال کردن اجرای دستی
   schedule:
-    - cron: '0 */6 * * *'  # اجرای خودکار هر 6 ساعت
+    - cron: '0 */6 * * *'  # هر ۶ ساعت
+  workflow_dispatch:
 
 jobs:
   update:
@@ -13,19 +13,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download latest subscription
+      - name: Install curl
+        run: sudo apt-get update && sudo apt-get install -y curl
+
+      - name: Download and check file
         run: |
-          curl -s https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt -o Config/all.txt
+          curl -s https://raw.githubusercontent.com/davudsedft/purvpn/refs/heads/main/links/purkow.txt -o temp.txt
+          
+          echo "📦 Downloaded content:"
+          cat temp.txt || echo "(Nothing downloaded)"
+
+          if [ ! -s temp.txt ]; then
+            echo "❌ Downloaded file is empty. Skipping update."
+            exit 1
+          fi
+
+          mv temp.txt Config/all.txt
 
       - name: Commit and push if changed
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           if git diff --quiet; then
-            echo "No changes to commit."
+            echo "✅ No changes to commit."
           else
             git add Config/all.txt
-            git commit -m "Auto-update all.txt from external source"
+            git commit -m "🔄 Auto-update all.txt"
             git push
           fi
